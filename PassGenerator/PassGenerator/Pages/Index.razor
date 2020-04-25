@@ -2,8 +2,16 @@
 
 @using PassGenerator.DomainModel
 @using CurrieTechnologies.Razor.Clipboard
+@using Blazored.Toast.Configuration
 
 @inject ClipboardService Clipboard
+@inject IToastService ToastService
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="3"
+                SuccessClass="success-toast-override"
+                SuccessIconClass="fa fa-thumbs-up"
+                ErrorIconClass="fa fa-bug" />
 
 <p>@_password</p>
 
@@ -158,6 +166,8 @@
     private async Task CopyPasswordAsync()
     {
         await Clipboard.WriteTextAsync(_password);
+
+        ToastService.ShowInfo("Password copied.");
     }
 
     private void Validate()

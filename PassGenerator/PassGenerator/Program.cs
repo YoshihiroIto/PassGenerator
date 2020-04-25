@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Blazored.Toast;
 using CurrieTechnologies.Razor.Clipboard;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ namespace PassGenerator
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddClipboard();
+            builder.Services.AddBlazoredToast();
 
             await builder.Build().RunAsync();
         }
