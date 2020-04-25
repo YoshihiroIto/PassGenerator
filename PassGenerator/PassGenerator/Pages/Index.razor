@@ -1,7 +1,174 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using PassGenerator.DomainModel
+@using CurrieTechnologies.Razor.Clipboard
 
-Welcome to your new app.
+@inject ClipboardService Clipboard
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<p>@_password</p>
+
+<button type="button" class="btn btn-outline-primary" @onclick="RegeneratePassword">Regenerate Password</button>
+<button type="button" class="btn btn-outline-primary" @onclick="async e => await CopyPasswordAsync()">Copy Password</button>
+
+<p>Length @_length</p>
+<input type="range"
+       min="4"
+       max="128"
+       @bind-value:event="oninput"
+       @bind-value="@Length"/>
+
+<div class="form-check">
+    <input class="form-check-input"
+           type="checkbox"
+           @bind="@IsUpperAlphabet"
+           id="UpperAlphabet">
+    <label class="form-check-label" for="UpperAlphabet">A-Z</label>
+</div>
+
+<div class="form-check">
+    <input class="form-check-input"
+           type="checkbox"
+           @bind="@IsLowerAlphabet"
+           id="LowerAlphabet">
+    <label class="form-check-label" for="LowerAlphabet">a-z</label>
+</div>
+
+<div class="form-check">
+    <input class="form-check-input"
+           type="checkbox"
+           @bind="@IsNumber"
+           id="Number">
+    <label class="form-check-label" for="Number">0-9</label>
+</div>
+
+<div class="form-check">
+    <input class="form-check-input"
+           type="checkbox"
+           @bind="@IsMark"
+           id="Mark">
+    <label class="form-check-label" for="Mark">@_generator.Marks</label>
+</div>
+
+@code {
+
+    #region Length
+
+    private int _length = 32;
+
+    public int Length
+    {
+        get => _length;
+        set
+        {
+            _length = value;
+            Validate();
+            Generate();
+        }
+    }
+
+    #endregion
+
+    #region IsUpperAlphabet
+
+    private bool _isUpperAlphabet = true;
+
+    public bool IsUpperAlphabet
+    {
+        get => _isUpperAlphabet;
+        set
+        {
+            _isUpperAlphabet = value;
+            Validate();
+            Generate();
+        }
+    }
+
+    #endregion
+
+    #region IsLowerAlphabet
+
+    private bool _isLowerAlphabet = true;
+
+    public bool IsLowerAlphabet
+    {
+        get => _isLowerAlphabet;
+        set
+        {
+            _isLowerAlphabet = value;
+            Validate();
+            Generate();
+        }
+    }
+
+    #endregion
+
+    #region IsNumber
+
+    private bool _isNumber = true;
+
+    public bool IsNumber
+    {
+        get => _isNumber;
+        set
+        {
+            _isNumber = value;
+            Validate();
+            Generate();
+        }
+    }
+
+    #endregion
+
+    #region IsMark
+
+    private bool _isMark = true;
+
+    public bool IsMark
+    {
+        get => _isMark;
+        set
+        {
+            _isMark = value;
+            Validate();
+            Generate();
+        }
+    }
+
+    #endregion
+
+    private bool IsAllOff =>
+        IsUpperAlphabet == false &&
+        IsLowerAlphabet == false &&
+        IsNumber == false &&
+        IsMark == false;
+
+    private string _password;
+    private readonly PassGenerator _generator = new PassGenerator();
+
+    protected override void OnInitialized()
+    {
+        Generate();
+    }
+
+    private void RegeneratePassword()
+    {
+        Generate();
+    }
+
+    private async Task CopyPasswordAsync()
+    {
+        await Clipboard.WriteTextAsync(_password);
+    }
+
+    private void Validate()
+    {
+        if (IsAllOff)
+            IsLowerAlphabet = true;
+    }
+
+    private void Generate()
+    {
+        _password = _generator.Generate(_length, IsUpperAlphabet, IsLowerAlphabet, IsNumber, _isMark);
+    }
+
+}
